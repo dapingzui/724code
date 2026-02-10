@@ -7,6 +7,14 @@
   </p>
 </p>
 
+<p align="center">
+  <a href="https://github.com/dapingzui/724code/stargazers"><img src="https://img.shields.io/github/stars/dapingzui/724code?style=social" alt="GitHub stars"></a>
+  <a href="https://github.com/dapingzui/724code/network/members"><img src="https://img.shields.io/github/forks/dapingzui/724code?style=social" alt="GitHub forks"></a>
+  <a href="https://github.com/dapingzui/724code/issues"><img src="https://img.shields.io/github/issues/dapingzui/724code" alt="GitHub issues"></a>
+  <a href="https://github.com/dapingzui/724code/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dapingzui/724code" alt="License"></a>
+  <img src="https://img.shields.io/badge/python-3.11+-blue.svg" alt="Python 3.11+">
+</p>
+
 ---
 
 **724code** turns your home server (NAS, Linux box, or any always-on machine) into a remote coding workstation. Send a message on Telegram, and Claude Code executes it on your machine — read files, write code, run git, manage projects, all from your phone.
@@ -213,3 +221,12 @@ sudo cp 724code.service /etc/systemd/system/
 sudo systemctl enable --now 724code
 sudo journalctl -u 724code -f  # 查看日志
 ```
+
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=dapingzui/724code&type=Date)](https://star-history.com/#dapingzui/724code&Date)
+
+---
+
+Made with ❤️ by the 724code team · Powered by [Claude Code](https://claude.ai/code)
