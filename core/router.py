@@ -35,7 +35,7 @@ class Router:
         self._last_full_output: dict[str, str] = {}  # chat_id -> 完整输出
 
     async def handle(self, msg: IncomingMessage, adapter: BotAdapter):
-        """路由入口：命令走元命令，普通文本走 Claude Code"""
+        """路由入口：命令走元命令，普通文本先尝试语义匹配，最后走 Claude Code"""
         text = msg.text.strip()
         if not text:
             return
@@ -46,7 +46,11 @@ class Router:
             if text.startswith("/"):
                 await self._handle_command(msg, adapter, text)
             else:
-                await self._handle_claude(msg, adapter, text)
+                # 尝试语义匹配常用命令
+                matched = await self._try_semantic_match(msg, adapter, text)
+                if not matched:
+                    # 未匹配到，交给 Claude Code 处理
+                    await self._handle_claude(msg, adapter, text)
         except Exception as e:
             logger.error(f"处理消息异常: {e}", exc_info=True)
             try:
@@ -56,6 +60,103 @@ class Router:
                 ))
             except Exception:
                 pass
+
+    # ========== 语义匹配（自然语言 → 命令）==========
+
+    async def _try_semantic_match(self, msg: IncomingMessage, adapter: BotAdapter, text: str) -> bool:
+        """尝试将自然语言匹配到常用命令，返回是否匹配成功"""
+        text_lower = text.lower()
+
+        # 项目管理
+        if any(kw in text_lower for kw in ["仓库", "repo"]):
+            await self._cmd_repos(msg, adapter, "")
+            return True
+
+        if any(kw in text_lower for kw in ["项目列表", "显示项目", "所有项目"]):
+            await self._cmd_projects(msg, adapter, "")
+            return True
+
+        if any(kw in text for kw in ["切换到", "切换项目", "进入项目"]):
+            # 提取项目名
+            project_name = ""
+            for kw in ["切换到", "切换项目", "进入项目"]:
+                if kw in text:
+                    parts = text.split(kw, 1)
+                    if len(parts) > 1:
+                        project_name = parts[1].strip().split()[0]
+                    break
+            await self._cmd_cd(msg, adapter, project_name)
+            return True
+
+        # 会话管理
+        if any(kw in text_lower for kw in ["当前状态", "查看状态", "状态"]) and "git" not in text_lower:
+            await self._cmd_status(msg, adapter, "")
+            return True
+
+        if any(kw in text_lower for kw in ["新会话", "重新开始"]):
+            await self._cmd_new(msg, adapter, "")
+            return True
+
+        if any(kw in text_lower for kw in ["帮助", "help", "命令列表"]):
+            await self._cmd_help(msg, adapter, "")
+            return True
+
+        # Git 操作
+        if any(kw in text_lower for kw in ["查看变更", "变更", "差异", "diff"]):
+            await self._cmd_diff(msg, adapter, "")
+            return True
+
+        if "提交" in text and "记录" not in text:
+            # 提取提交信息
+            commit_msg = ""
+            for kw in ["提交代码", "提交"]:
+                if kw in text:
+                    parts = text.split(kw, 1)
+                    if len(parts) > 1:
+                        commit_msg = parts[1].strip()
+                    break
+            await self._cmd_commit(msg, adapter, commit_msg)
+            return True
+
+        if any(kw in text_lower for kw in ["推送", "push"]):
+            await self._cmd_push(msg, adapter, "")
+            return True
+
+        if any(kw in text_lower for kw in ["拉取", "pull"]):
+            await self._cmd_pull(msg, adapter, "")
+            return True
+
+        if "分支" in text or "branch" in text_lower:
+            await self._cmd_branch(msg, adapter, "")
+            return True
+
+        if any(kw in text_lower for kw in ["提交记录", "日志", "commit log"]):
+            await self._cmd_log(msg, adapter, "5")
+            return True
+
+        if "git" in text_lower and "status" in text_lower:
+            await self._cmd_gs(msg, adapter, "")
+            return True
+
+        # 记忆
+        if any(kw in text_lower for kw in ["记忆", "历史记录", "memory"]) and "搜索" not in text:
+            await self._cmd_memory(msg, adapter, "")
+            return True
+
+        if any(kw in text for kw in ["搜索", "查找"]):
+            # 提取搜索关键词
+            keyword = ""
+            for kw in ["搜索", "查找"]:
+                if kw in text:
+                    parts = text.split(kw, 1)
+                    if len(parts) > 1:
+                        keyword = parts[1].strip()
+                    break
+            if keyword:
+                await self._cmd_search(msg, adapter, keyword)
+                return True
+
+        return False
 
     # ========== 元命令分发 ==========
 

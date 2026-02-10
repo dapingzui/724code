@@ -22,6 +22,7 @@
 | Category | Commands |
 |----------|----------|
 | **AI Coding** | Send any text → Claude Code executes it with full CLI access |
+| **Natural Language** | 🆕 Use plain language instead of slash commands: "show repos", "switch to test1", "check status" |
 | **Projects** | `/projects` `/cd` `/newproject` `/clone` `/repos` `/addproject` `/rmproject` |
 | **Git** | `/diff` `/commit` `/push` `/pull` `/branch` `/log` `/gs` |
 | **Files** | `/cat` (with line ranges) `/tree` (directory view) |
@@ -98,10 +99,31 @@ sudo systemctl enable --now 724code
 
 Open your Telegram bot and start sending messages:
 
-```
-You: 看一下项目结构
-Bot: [Claude Code analyzes and responds]
+### Natural Language Commands (New!)
 
+```
+You: 仓库                    # or "show repos", "my repositories"
+Bot: [Lists your GitHub repos]
+
+You: 项目列表                # or "list projects"
+Bot: [Shows all registered projects]
+
+You: 切换到myapp             # or "switch to myapp"
+Bot: ✅ 已切换到: myapp
+
+You: 查看变更                # or "show changes", "diff"
+Bot: [Git diff output]
+
+You: 状态                    # or "status", "current state"
+Bot: [Session info]
+
+You: 提交修复登录bug          # or "commit fix login bug"
+Bot: ✅ [bot] 修复登录bug
+```
+
+### Traditional Slash Commands
+
+```
 You: /newproject myapp 一个新的web应用
 Bot: ✅ 已创建项目: myapp
      GitHub 仓库已创建: https://github.com/...
@@ -109,8 +131,8 @@ Bot: ✅ 已创建项目: myapp
 You: /clone owner/repo
 Bot: ✅ 已克隆并注册: repo
 
-You: /commit 修复登录bug
-Bot: ✅ [bot] 修复登录bug
+You: 看一下项目结构
+Bot: [Claude Code analyzes and responds]
 ```
 
 ## Configuration
