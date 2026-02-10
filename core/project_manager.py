@@ -39,7 +39,7 @@ class ProjectManager:
     def list_projects(self) -> dict[str, dict]:
         return dict(self.projects)
 
-    def get_project(self, name: str) -> dict | None:
+    def get_project(self, name: str):
         return self.projects.get(name)
 
     def get_project_path(self, name: str) -> str:

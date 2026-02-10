@@ -362,12 +362,12 @@ class Router:
 
     # ========== Git 命令 ==========
 
-    def _get_cwd(self, chat_id: str) -> str | None:
+    def _get_cwd(self, chat_id: str):
         """获取当前项目路径，未选项目返回 None"""
         session = self.session_mgr.get_session(chat_id)
         return session.current_project_path or None
 
-    async def _require_project(self, adapter: BotAdapter, chat_id: str) -> str | None:
+    async def _require_project(self, adapter: BotAdapter, chat_id: str):
         """要求已选项目，返回 cwd 或 None（并提示用户）"""
         cwd = self._get_cwd(chat_id)
         if not cwd:

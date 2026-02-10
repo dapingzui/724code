@@ -33,7 +33,7 @@ class ClaudeExecutor:
     def __init__(self, config: dict, proxy_url: str = ""):
         self.config = config
         self.proxy_url = proxy_url
-        self.current_process: asyncio.subprocess.Process | None = None
+        self.current_process = None  # asyncio.subprocess.Process or None
 
     def _build_env(self) -> dict[str, str]:
         """构建子进程环境变量，注入代理"""
