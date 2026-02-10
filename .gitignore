@@ -1,0 +1,14 @@
+config.yaml
+data/
+*.db
+*.pyc
+__pycache__/
+venv/
+.venv/
+*.log
+.DS_Store
+*.jsonl
+.724code/
+jindu.md
+design1.md
+CLAUDE1.md

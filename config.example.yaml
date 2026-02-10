@@ -1,0 +1,77 @@
+# 724code 配置文件
+# 复制此文件为 config.yaml 并填入你的实际值
+
+# ============ 代理配置（关键！NAS 必须配置） ============
+proxy:
+  # HTTP/SOCKS5 代理地址，Telegram Bot 和 Claude Code 子进程共用
+  # 示例: "http://192.168.1.1:7890" 或 "socks5://192.168.1.1:1080"
+  url: "http://127.0.0.1:7890"
+
+# ============ Telegram 配置 ============
+telegram:
+  token: "YOUR_TELEGRAM_BOT_TOKEN"    # 从 @BotFather 获取
+  allowed_users:
+    - 123456789                        # 你的 Telegram user ID（从 @userinfobot 获取）
+
+# ============ 项目配置 ============
+projects:
+  workspace_root: "/home/jake/projects"   # NAS 上的项目根目录
+  projects_file: "./data/projects.yaml"
+  default: ""                              # 默认项目名（可选）
+  scaffold_on_create: true
+  init_git_on_create: true
+  create_github_repo: true                 # /newproject 时自动创建 GitHub 仓库（需 gh auth login）
+  github_private: true                     # 新仓库默认私有
+
+# ============ Claude Code 配置 ============
+claude:
+  command: "claude"                        # Claude Code CLI 命令路径
+  model: "claude-sonnet-4-20250514"
+  max_turns: 25
+  timeout: 300                             # 超时秒数
+  allowed_tools:
+    - "Read"
+    - "Write"
+    - "Edit"
+    - "Bash"
+    - "Grep"
+
+# ============ 输出配置 ============
+output:
+  max_message_length: 4000                 # Telegram 单条上限留余量
+  save_full_log: true
+
+# ============ 记忆配置 ============
+memory:
+  db_path: "./data/memories.db"
+  recent_entries: 15
+  max_context_tokens: 4000
+
+# ============ Git 配置 ============
+# /commit, /push, /diff 等命令使用这些配置
+git:
+  # Git 身份（必填，否则 commit 会报错）
+  user_name: "Your Name"               # git commit 时的作者名
+  user_email: "you@example.com"        # git commit 时的作者邮箱
+
+  # GitHub 推送认证（二选一）
+  # 方式1: SSH — 在 NAS 上生成 SSH key 并添加到 GitHub
+  #   ssh-keygen -t ed25519 -C "you@example.com"
+  #   然后把 ~/.ssh/id_ed25519.pub 的内容添加到 GitHub → Settings → SSH Keys
+  #   项目 remote 用 SSH 格式: git remote add origin git@github.com:用户名/仓库.git
+  #
+  # 方式2: HTTPS + Token
+  #   在 GitHub → Settings → Developer settings → Personal access tokens 创建 token
+  #   然后运行: gh auth login  或  git config --global credential.helper store
+  #   项目 remote 用 HTTPS 格式: git remote add origin https://github.com/用户名/仓库.git
+
+  default_branch: "main"
+  commit_prefix: "[bot]"               # commit 消息前缀
+  protected_branches:                   # 禁止直接 push 的分支
+    - "main"
+    - "production"
+
+# ============ 文件管理配置 ============
+files:
+  max_cat_lines: 200
+  max_file_size_mb: 10

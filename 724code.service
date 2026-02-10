@@ -1,0 +1,17 @@
+[Unit]
+Description=724code - Telegram Claude Code Controller
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=REPLACE_WITH_YOUR_USER
+WorkingDirectory=REPLACE_WITH_INSTALL_PATH
+ExecStart=/usr/bin/python3 REPLACE_WITH_INSTALL_PATH/main.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
