@@ -89,7 +89,7 @@ class ProjectManager:
         if self.init_git_on_create:
             git_dir = os.path.join(project_path, ".git")
             if not os.path.exists(git_dir):
-                await _run_cmd("git", "init", project_path)
+                await _run_cmd("git", "init", "-b", "main", project_path)
                 lines.append("git init 完成")
 
         # 创建 GitHub 仓库
