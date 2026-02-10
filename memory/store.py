@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 class MemoryStore:
     def __init__(self, db_path: str):
         self.db_path = db_path
+        self.fts_available = False
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
         self._init_db()
 
@@ -37,21 +38,26 @@ class MemoryStore:
                 model TEXT DEFAULT ''
             )
         """)
-        # FTS5 全文搜索索引
-        conn.execute("""
-            CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts
-            USING fts5(user_msg, summary, content=memories, content_rowid=id)
-        """)
+        # FTS5 全文搜索索引（可选，部分 SQLite 编译版不含 FTS5）
+        try:
+            conn.execute("""
+                CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts
+                USING fts5(user_msg, summary, content=memories, content_rowid=id)
+            """)
+            self.fts_available = True
+        except sqlite3.OperationalError:
+            logger.warning("SQLite FTS5 不可用，搜索将使用 LIKE 模糊匹配")
+            self.fts_available = False
         conn.commit()
         conn.close()
-        logger.info(f"记忆数据库就绪: {self.db_path}")
+        logger.info(f"记忆数据库就绪: {self.db_path} (FTS5: {self.fts_available})")
 
     def save_entry(
         self,
         project: str,
         user_msg: str,
         summary: str,
-        files_changed: list[str] = None,
+        files_changed: list = None,
         session_id: str = "",
         cost_usd: float = 0,
         model: str = "",
@@ -74,11 +80,12 @@ class MemoryStore:
             )
         )
         # 同步 FTS 索引
-        conn.execute(
-            """INSERT INTO memories_fts(rowid, user_msg, summary)
-               VALUES (?, ?, ?)""",
-            (cursor.lastrowid, user_msg, summary)
-        )
+        if self.fts_available:
+            conn.execute(
+                """INSERT INTO memories_fts(rowid, user_msg, summary)
+                   VALUES (?, ?, ?)""",
+                (cursor.lastrowid, user_msg, summary)
+            )
         conn.commit()
         conn.close()
 
