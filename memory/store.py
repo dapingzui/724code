@@ -12,20 +12,6 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
-class ProjectMemoryManager:
-    """按项目路径管理 MemoryStore 实例"""
-
-    def __init__(self):
-        self._stores: dict[str, MemoryStore] = {}
-
-    def get_store(self, project_path: str) -> MemoryStore:
-        """获取项目对应的 MemoryStore（自动创建）"""
-        if project_path not in self._stores:
-            db_path = os.path.join(project_path, ".724code", "memories.db")
-            self._stores[project_path] = MemoryStore(db_path)
-        return self._stores[project_path]
-
-
 class MemoryStore:
     def __init__(self, db_path: str):
         self.db_path = db_path
@@ -192,3 +178,17 @@ class MemoryStore:
             "count": row[0] or 0,
             "total_cost": round(row[1] or 0, 4),
         }
+
+
+class ProjectMemoryManager:
+    """按项目路径管理 MemoryStore 实例"""
+
+    def __init__(self):
+        self._stores = {}
+
+    def get_store(self, project_path: str):
+        """获取项目对应的 MemoryStore（自动创建）"""
+        if project_path not in self._stores:
+            db_path = os.path.join(project_path, ".724code", "memories.db")
+            self._stores[project_path] = MemoryStore(db_path)
+        return self._stores[project_path]
